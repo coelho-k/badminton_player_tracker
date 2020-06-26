@@ -150,6 +150,33 @@ src/body.cpp.s:
 	$(MAKE) -f CMakeFiles/Capstone.dir/build.make CMakeFiles/Capstone.dir/src/body.cpp.s
 .PHONY : src/body.cpp.s
 
+src/bounds.o: src/bounds.cpp.o
+
+.PHONY : src/bounds.o
+
+# target to build an object file
+src/bounds.cpp.o:
+	$(MAKE) -f CMakeFiles/Capstone.dir/build.make CMakeFiles/Capstone.dir/src/bounds.cpp.o
+.PHONY : src/bounds.cpp.o
+
+src/bounds.i: src/bounds.cpp.i
+
+.PHONY : src/bounds.i
+
+# target to preprocess a source file
+src/bounds.cpp.i:
+	$(MAKE) -f CMakeFiles/Capstone.dir/build.make CMakeFiles/Capstone.dir/src/bounds.cpp.i
+.PHONY : src/bounds.cpp.i
+
+src/bounds.s: src/bounds.cpp.s
+
+.PHONY : src/bounds.s
+
+# target to generate assembly for a file
+src/bounds.cpp.s:
+	$(MAKE) -f CMakeFiles/Capstone.dir/build.make CMakeFiles/Capstone.dir/src/bounds.cpp.s
+.PHONY : src/bounds.cpp.s
+
 src/main.o: src/main.cpp.o
 
 .PHONY : src/main.o
@@ -189,6 +216,9 @@ help:
 	@echo "... src/body.o"
 	@echo "... src/body.i"
 	@echo "... src/body.s"
+	@echo "... src/bounds.o"
+	@echo "... src/bounds.i"
+	@echo "... src/bounds.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

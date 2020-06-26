@@ -1,6 +1,10 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/tracking.hpp>
-#include <body.h>
+#include <opencv2/video.hpp>
+#include <cmath>
+#include <algorithm>
+#include "body.hpp"
+#include "bounds.hpp"
 
 using namespace cv;
 using namespace std;
@@ -67,7 +71,10 @@ int main(int argc, char * argv[])
   cv::VideoCapture cap(videoPath);
   Mat frame;
 
-  // quit if unabke to read video file
+  // Output frames
+  Mat dst, bw, cdst, cdstP, mask1, mask2, mask0;
+
+  // quit if unable to read video file
   if(!cap.isOpened()) 
   {
     cout << "Error opening video file " << videoPath << endl;
@@ -116,6 +123,14 @@ int main(int argc, char * argv[])
     // stop the program if reached end of video
     if (frame.empty()) break;
 
+    // Get masks
+    Mat white = courtMask(frame);
+
+    // Get lines
+    vector<Vec4i> linesP = getLines(white);
+
+    Point min = determineBoundary(linesP);
+
     //update the tracking result with new frame
     multiTracker->update(frame);
 
@@ -124,11 +139,13 @@ int main(int argc, char * argv[])
     {
       rectangle(frame, multiTracker->getObjects()[i], colors[i], 2, 1);
 
-	  // Updates player's position data
-	  playersList[i].setPosition(move(multiTracker->getObjects()[i].x + multiTracker->getObjects()[i].width / 2), 
+	    // Updates player's position data
+      // No real benefit of the move here
+      // Experimenting
+	    playersList[i].setPosition(move(multiTracker->getObjects()[i].x + multiTracker->getObjects()[i].width / 2), 
                                 move(multiTracker->getObjects()[i].y + multiTracker->getObjects()[i].height / 2));
     }
-  
+
     // show frame
     imshow("MultiTracker", frame);
     
@@ -137,5 +154,4 @@ int main(int argc, char * argv[])
     
    }
 
- 
 }

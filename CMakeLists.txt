@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(Capstone)
-set(SOURCES src/main.cpp src/body.cpp)
+set(SOURCES src/main.cpp src/body.cpp src/bounds.cpp)
 
 INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/source)

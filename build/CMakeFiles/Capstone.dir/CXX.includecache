@@ -6,10 +6,26 @@
 
 #IncludeRegexTransform: 
 
-../include/body.h
+../include/body.hpp
 iostream
 -
 vector
+-
+
+../include/bounds.hpp
+iostream
+-
+vector
+-
+opencv2/opencv.hpp
+-
+opencv2/tracking.hpp
+-
+opencv2/video.hpp
+-
+
+/home/kyle/Desktop/Capstone/src/body.cpp
+body.hpp
 -
 
 /home/kyle/Desktop/Capstone/src/main.cpp
@@ -17,8 +33,16 @@ opencv2/opencv.hpp
 -
 opencv2/tracking.hpp
 -
-body.h
+opencv2/video.hpp
 -
+cmath
+-
+algorithm
+-
+body.hpp
+/home/kyle/Desktop/Capstone/src/body.hpp
+bounds.hpp
+/home/kyle/Desktop/Capstone/src/bounds.hpp
 
 /home/kyle/opencv/build/cv_cpu_config.h
 

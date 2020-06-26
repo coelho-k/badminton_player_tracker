@@ -1,4 +1,4 @@
-#include <body.h>
+#include <body.hpp>
 
 // def functions
 void Body::setPosition(int&& x, int&& y)
