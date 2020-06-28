@@ -2,15 +2,17 @@
 #define BODY_HPP
 
 #include <iostream>
+#include <opencv2/opencv.hpp>
 #include <vector>
+
+using namespace cv;
+using namespace std;
+
+// const float courtWidth = 6.10;
 
 class Body
 {
 public:
-
-    Body();
-
-    ~Body();
 
     // get most recent position
     std::pair<int, int> getPosition() { return position; }
@@ -20,13 +22,19 @@ public:
 
     // Functions for calculating relative court position
     // Relative to the bottom left corner of court
+    float courtPosition(const vector<Point>& bounds);
 
+    // Calculate speed
+    float currentSpeed();
 
 
 private:
 
-    // current position
+    // current frame position
     std::pair<int, int> position;
+
+    // current court position
+    std::pair<float, float> courtPos;
 
     // current velocity
     std::pair<float, float> speed;

@@ -19,7 +19,7 @@ Mat courtMask(Mat& frame)
     inRange(bw, Scalar(0,200,0), Scalar(255,255,255), mask1);
     Mat white;
     frame.copyTo(white, mask1);
-    imshow("2 - g/w/y mask", white);
+    imshow("2 - g/w mask", white);
 
     /* Get bottom court 
     // Point bottom = determineBoundary(linesP);
@@ -88,18 +88,66 @@ vector<Vec4i> getLines(Mat& masked)
     return linesP;
 }
 
+bool compare(Vec4i a, Vec4i b) {
+    return true;
+}
+
 // Get reference / edge of court position
-Point determineBoundary(const vector<Vec4i>& lines)
+void sortLines(vector<Vec4i>& lines)
 {
-    vector<Point> pts;
+    int min; 
+    Vec4i temp;
     for (int ii=0; ii < lines.size(); ii++)
     {
-        Vec4i l = lines[ii];
-        pts.push_back(Point(l[0],l[1]));
-        pts.push_back(Point(l[2],l[3]));
+        min = ii;
+        for (int j = ii+1; j < lines.size(); j++)
+        {
+            if (lines[ii][0] > lines[j][0])
+            {
+                temp = lines[ii];
+                lines[ii] = lines[j];
+                lines[j] = temp;
+            }
+        }
     }
+}
 
-    sort(pts.begin(), pts.end(), [](Point pt1, Point pt2){ return (pt1.x < pt2.x); });
+Mat calibrate(const Mat& frame, const vector<Vec4i>& lines)
+{
+    auto width = lines[lines.size()-1][0] - lines[0][0]; // pixel width
+    float pixelsPerMetric = width / courtWidth;
 
-    return pts[0];
+    float verticalAdjust = courtHeight * pixelsPerMetric;
+
+    vector<Point2f> srcTri;
+    vector<Point2f> dstTri;
+
+    Mat rot_mat( 2, 3, CV_32FC1 );
+    Mat warp_mat( 2, 3, CV_32FC1 );
+    Mat src, warp_dst, warp_rotate_dst;
+
+    warp_dst = Mat::zeros( frame.rows, frame.cols, frame.type() );
+
+    srcTri.push_back(Point2f( lines[0][0], lines[0][1] )); // bottom left
+    srcTri.push_back(Point2f( lines[0][2], lines[0][3] )); // top left
+    srcTri.push_back(Point2f( lines[lines.size()-1][0], lines[lines.size()-1][1] )); // bottom right
+    srcTri.push_back(Point2f( lines[lines.size()-1][2], lines[lines.size()-1][3] )); // top right
+
+    dstTri.push_back(Point2f( lines[0][0], lines[0][1] ));
+    dstTri.push_back(Point2f( lines[0][0], lines[0][1] +  verticalAdjust));
+    dstTri.push_back(Point2f( lines[lines.size()-1][0], lines[lines.size()-1][1] ));
+    dstTri.push_back(Point2f( lines[lines.size()-1][0], lines[lines.size()-1][1] + verticalAdjust ));
+
+    warp_mat = findHomography( srcTri, dstTri, CV_RANSAC);
+
+    Mat temp = getPerspectiveTransform(srcTri, dstTri);
+
+    warpPerspective( frame, warp_dst, warp_mat, warp_dst.size() );
+    namedWindow("Warped", WINDOW_NORMAL);
+    imshow("Warped", warp_dst);
+    vector<Point2f> input = { Point2f(400, 123) }; 
+    vector<Point2f> output;
+    perspectiveTransform(input, output, temp);
+
+    return temp;
 }

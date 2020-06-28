@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/tracking.hpp>
 #include <opencv2/video.hpp>
+#include "opencv2/calib3d/calib3d.hpp"
 #include <cmath>
 #include <algorithm>
 #include "body.hpp"
@@ -111,6 +112,47 @@ int main(int argc, char * argv[])
 	  playersList.push_back(Body());
 	  multiTracker->add(createTrackerByName(trackerType), frame, Rect2d(bboxes[i]));
   }
+
+  // Get masks
+  Mat white = courtMask(frame);
+
+  // Get lines
+  vector<Vec4i> linesP = getLines(white);
+
+  // Court boundary
+  sortLines(linesP);
+
+  //--------------------------------------------------------------------------------------------------
+  vector<Point2f> srcTri;
+  vector<Point2f> dstTri;
+
+  Mat rot_mat( 2, 3, CV_32FC1 );
+  Mat warp_mat( 2, 3, CV_32FC1 );
+  Mat src, warp_dst, warp_rotate_dst;
+
+  warp_dst = Mat::zeros( frame.rows, frame.cols, frame.type() );
+
+  srcTri.push_back(Point2f( 120, 327 ));
+  srcTri.push_back(Point2f( 490, 329 ));
+  srcTri.push_back(Point2f( 400, 123 ));
+  srcTri.push_back(Point2f( 201, 123 ));
+
+  dstTri.push_back(Point2f( 120, 327 ));
+  dstTri.push_back(Point2f( 490, 329 ));
+  dstTri.push_back(Point2f( 490, 1138 ));
+  dstTri.push_back(Point2f( 120, 1138 ));
+
+  warp_mat = findHomography( srcTri, dstTri, CV_RANSAC);
+
+  Mat temp = getPerspectiveTransform(srcTri, dstTri);
+
+  warpPerspective( frame, warp_dst, warp_mat, warp_dst.size() );
+  namedWindow("Warped", WINDOW_NORMAL);
+  imshow("Warped", warp_dst);
+  vector<Point2f> input = { Point2f(400, 123) }; 
+  vector<Point2f> output;
+  perspectiveTransform(input, output, temp);
+  //--------------------------------------------------------------------------------------------------
   
   // process video and track objects
   cout << "\n==========================================================\n";
@@ -122,14 +164,6 @@ int main(int argc, char * argv[])
   
     // stop the program if reached end of video
     if (frame.empty()) break;
-
-    // Get masks
-    Mat white = courtMask(frame);
-
-    // Get lines
-    vector<Vec4i> linesP = getLines(white);
-
-    Point min = determineBoundary(linesP);
 
     //update the tracking result with new frame
     multiTracker->update(frame);
@@ -146,11 +180,19 @@ int main(int argc, char * argv[])
                                 move(multiTracker->getObjects()[i].y + multiTracker->getObjects()[i].height / 2));
     }
 
+    //for(int i=0; i < bboxes.size(); i++)
+    //{
+    //  float cp = playersList[i].courtPosition(minMax);
+    //}
+  
+
     // show frame
     imshow("MultiTracker", frame);
     
     // quit on x button
     if  (waitKey(1) == 27) break;
+
+    imshow("tracking", frame);
     
    }
 
