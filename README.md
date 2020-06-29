@@ -14,11 +14,15 @@ This project is aimed toward tracking players movements on a badminton court. It
 3. run cmake and then make
    1. `cmake ..`
    2. `make`
-4. `./Capstone`
+4. `./Capstone --video=../lee.mp4`
 
 Requirements include OpenCV version 3.4 or greater as well as Cmake.
 
 Different videos can be used. Ensure that they are in .mp4 format and that the file name is changed accordingly - line 66.
+
+**Directory Structure**
+
+![Directory](media/tree.jpg)
 
 **Expected Output**
 
