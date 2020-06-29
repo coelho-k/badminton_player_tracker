@@ -1,0 +1,3 @@
+/home/kyle/Desktop/badminton_player_tracker/build/CMakeFiles/rebuild_cache.dir
+/home/kyle/Desktop/badminton_player_tracker/build/CMakeFiles/Capstone.dir
+/home/kyle/Desktop/badminton_player_tracker/build/CMakeFiles/edit_cache.dir
