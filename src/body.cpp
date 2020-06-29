@@ -1,7 +1,7 @@
 #include <body.hpp>
 
 // def functions
-void Body::setPosition(int&& x, int&& y)
+void Body::setPosition(float&& x, float&& y)
 {
     position.first = x;
     position.second = y;
@@ -9,25 +9,28 @@ void Body::setPosition(int&& x, int&& y)
     posList.push_back(position);
 }
 
-/* Get relative court position of player
-float Body::courtPosition(const vector<Point>& bounds)
+// Get relative court position of player
+float Body::courtPosition(const Mat& mapping, const vector<Vec4i>& lines)
 {
-    auto width = bounds[1].x - bounds[0].x;
-    float pixelsPerMetric = width / courtWidth;
+    // maps to real world
+    // TODO: Change to a more efficient way. This should be temp
+    vector<Point2f> input; input.push_back( Point2f(position.first, position.second) );
+    vector<Point2f> output;
+    perspectiveTransform(input, output, mapping);
 
-    cout << "PPM Metric = " << pixelsPerMetric << endl;
+    float pixelDist =  sqrt(pow(output[0].x - lines[0][0], 2) +  
+                            pow(output[0].y - lines[0][1], 2) * 1.0);
 
-    float pixelDist =  sqrt(pow(position.first - bounds[0].x, 2) +  
-                            pow(position.second - bounds[0].y, 2) * 1.0);
+    // cout << "Actual distance = " << pixelDist / pixelsPerMetric << endl;
 
-    cout << "Actual distance = " << pixelDist / pixelsPerMetric << endl;
+    courtPos.first = sqrt(pow(output[0].x - lines[0][0], 2)) / 60.49;
+    courtPos.second = sqrt(pow(output[0].y - lines[0][1], 2)) / 60.49;
 
-    // courtPosition.first = sqrt(pow(position.first - bounds[0].x, 2)) / pixelsPerMetric;
-    // courtPosition.second = sqrt(pow(position.second - bounds[0].y, 2)) / pixelsPerMetric;
+    cout << "X = " << courtPos.first << "\t" << "Y = " << courtPos.second << endl;
 
-    return pixelDist / pixelsPerMetric;
+    return pixelDist / 60.49;
 }
-*/
+
 
 
 // Calculate current speed

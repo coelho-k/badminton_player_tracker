@@ -1,3 +1,5 @@
+// Includes references from learnopencv.com
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/tracking.hpp>
 #include <opencv2/video.hpp>
@@ -9,6 +11,12 @@
 
 using namespace cv;
 using namespace std;
+
+const char* keys =
+"{help h usage ? | | Usage examples: \n\t\t./Capstone --video=lee.mp4 --tracker=CSRT}"
+"{tracker t       |<none>| input tracker   }"
+"{video v       |<none>| input video   }"
+;
 
 vector<string> trackerTypes = {"BOOSTING", "MIL", "KCF", "TLD", "MEDIANFLOW", "GOTURN", "MOSSE", "CSRT"}; 
 
@@ -54,22 +62,53 @@ vector<Body> playersList;
 
 int main(int argc, char * argv[]) 
 {
+  CommandLineParser parser(argc, argv, keys);
+  parser.about("Use this script to run object detection using YOLO3 in OpenCV.");
+  string trackerType = "CSRT";
+  string videoPath;
+  string str;
+
+  if (parser.has("help"))
+  {
+      parser.printMessage();
+      return 0;
+  }
+
+  try 
+  {
+        
+    if (parser.has("tracker"))
+    {
+        // Open the image file
+        str = parser.get<String>("tracker");
+        if (std::find(trackerTypes.begin(), trackerTypes.end(), str) != trackerTypes.end())
+          trackerType = "CSRT";
+        else 
+          throw("Error - Invalid Tracker type");
+    }
+    else if (parser.has("video"))
+    {
+        // Open the video file
+        str = parser.get<String>("video");
+        videoPath = str;
+    }       
+  }
+  catch(...) 
+  {
+      cout << "Could not open the input image/video stream" << endl;
+      return 0;
+  }
+
   cout << "Default tracking algoritm is CSRT" << endl;
   cout << "Available tracking algorithms are:" << endl;
   for (vector<string>::iterator it = trackerTypes.begin() ; it != trackerTypes.end(); ++it)
     std::cout << " " << *it << endl;
   
-  // Set tracker type. Change this to try different trackers.
-  string trackerType = "CSRT";
-
-  // set default values for tracking algorithm and video
-  string videoPath = "lee.mp4";
-  
   // Initialize MultiTracker with tracking algo
   vector<Rect> bboxes;
 
-  // create a video capture object to read videos
-  cv::VideoCapture cap(videoPath);
+  // Create a video capture object to read videos
+  cv::VideoCapture cap(videoPath); 
   Mat frame;
 
   // Output frames
@@ -93,6 +132,7 @@ int main(int argc, char * argv[])
   cout << "\n==========================================================\n";
   cout << "OpenCV says press c to cancel objects selection process" << endl;
   cout << "It doesn't work. Press Escape to exit selection process" << endl;
+  cout << "Select Area -> Press Enter -> Pres Esc" << endl;
   cout << "\n==========================================================\n";
   cv::selectROIs("MultiTracker", frame, bboxes, showCrosshair, fromCenter);
   
@@ -122,37 +162,7 @@ int main(int argc, char * argv[])
   // Court boundary
   sortLines(linesP);
 
-  //--------------------------------------------------------------------------------------------------
-  vector<Point2f> srcTri;
-  vector<Point2f> dstTri;
-
-  Mat rot_mat( 2, 3, CV_32FC1 );
-  Mat warp_mat( 2, 3, CV_32FC1 );
-  Mat src, warp_dst, warp_rotate_dst;
-
-  warp_dst = Mat::zeros( frame.rows, frame.cols, frame.type() );
-
-  srcTri.push_back(Point2f( 120, 327 ));
-  srcTri.push_back(Point2f( 490, 329 ));
-  srcTri.push_back(Point2f( 400, 123 ));
-  srcTri.push_back(Point2f( 201, 123 ));
-
-  dstTri.push_back(Point2f( 120, 327 ));
-  dstTri.push_back(Point2f( 490, 329 ));
-  dstTri.push_back(Point2f( 490, 1138 ));
-  dstTri.push_back(Point2f( 120, 1138 ));
-
-  warp_mat = findHomography( srcTri, dstTri, CV_RANSAC);
-
-  Mat temp = getPerspectiveTransform(srcTri, dstTri);
-
-  warpPerspective( frame, warp_dst, warp_mat, warp_dst.size() );
-  namedWindow("Warped", WINDOW_NORMAL);
-  imshow("Warped", warp_dst);
-  vector<Point2f> input = { Point2f(400, 123) }; 
-  vector<Point2f> output;
-  perspectiveTransform(input, output, temp);
-  //--------------------------------------------------------------------------------------------------
+  Mat mapping = calibrate(frame, linesP);
   
   // process video and track objects
   cout << "\n==========================================================\n";
@@ -180,14 +190,15 @@ int main(int argc, char * argv[])
                                 move(multiTracker->getObjects()[i].y + multiTracker->getObjects()[i].height / 2));
     }
 
-    //for(int i=0; i < bboxes.size(); i++)
-    //{
-    //  float cp = playersList[i].courtPosition(minMax);
-    //}
+    for(int i=0; i < bboxes.size(); i++)
+    {
+      float cp = playersList[i].courtPosition(mapping, linesP);
+      // cout << "POS = " << cp << endl;
+    }
   
 
     // show frame
-    imshow("MultiTracker", frame);
+    // imshow("MultiTracker", frame);
     
     // quit on x button
     if  (waitKey(1) == 27) break;

@@ -1,3 +1,0 @@
-/home/kyle/Desktop/Capstone/build/CMakeFiles/rebuild_cache.dir
-/home/kyle/Desktop/Capstone/build/CMakeFiles/Capstone.dir
-/home/kyle/Desktop/Capstone/build/CMakeFiles/edit_cache.dir

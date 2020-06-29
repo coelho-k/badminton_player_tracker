@@ -18,20 +18,20 @@ public:
     std::pair<int, int> getPosition() { return position; }
 
     // setter
-    void setPosition(int&& x, int&& y);
+    void setPosition(float&& x, float&& y);
 
     // Functions for calculating relative court position
     // Relative to the bottom left corner of court
-    float courtPosition(const vector<Point>& bounds);
+    float courtPosition(const Mat& mapping, const vector<Vec4i>& lines);
 
     // Calculate speed
-    float currentSpeed();
+    float currentVelocity();
 
 
 private:
 
     // current frame position
-    std::pair<int, int> position;
+    std::pair<float, float> position;
 
     // current court position
     std::pair<float, float> courtPos;
@@ -40,7 +40,7 @@ private:
     std::pair<float, float> speed;
 
     // Position Vector
-    std::vector<std::pair<int, int>> posList;
+    std::vector<std::pair<float, float>> posList;
 
     // Velocity vector
     std::vector<std::pair<float, float>> veloList;

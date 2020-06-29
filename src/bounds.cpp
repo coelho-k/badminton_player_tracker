@@ -1,5 +1,6 @@
 #include "bounds.hpp"
 
+// Uses masks to isolate the court and the boundary
 Mat courtMask(Mat& frame)
 {
     // Output frames
@@ -62,7 +63,7 @@ Mat courtMask(Mat& frame)
     return white;
 }
 
-// Hough Line Transform
+// Gets court boundary lines from mask
 vector<Vec4i> getLines(Mat& masked)
 {
     Mat cdst, cdstP;
@@ -83,16 +84,13 @@ vector<Vec4i> getLines(Mat& masked)
         line( cdstP, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0,0,255), 3, LINE_AA);
     }
 
-    imshow("3 - cdstP", cdstP);
+    imshow("3 - Lines", cdstP);
 
     return linesP;
 }
 
-bool compare(Vec4i a, Vec4i b) {
-    return true;
-}
 
-// Get reference / edge of court position
+// Get reference / edges of court position
 void sortLines(vector<Vec4i>& lines)
 {
     int min; 
@@ -110,12 +108,17 @@ void sortLines(vector<Vec4i>& lines)
             }
         }
     }
+
+    // TODO also sort the points within the max and min lines
 }
 
+// Returns the transformation matrix mapping
 Mat calibrate(const Mat& frame, const vector<Vec4i>& lines)
 {
     auto width = lines[lines.size()-1][0] - lines[0][0]; // pixel width
     float pixelsPerMetric = width / courtWidth;
+
+    // cout << "PPM Metric = " << pixelsPerMetric << endl;
 
     float verticalAdjust = courtHeight * pixelsPerMetric;
 
@@ -130,24 +133,26 @@ Mat calibrate(const Mat& frame, const vector<Vec4i>& lines)
 
     srcTri.push_back(Point2f( lines[0][0], lines[0][1] )); // bottom left
     srcTri.push_back(Point2f( lines[0][2], lines[0][3] )); // top left
-    srcTri.push_back(Point2f( lines[lines.size()-1][0], lines[lines.size()-1][1] )); // bottom right
-    srcTri.push_back(Point2f( lines[lines.size()-1][2], lines[lines.size()-1][3] )); // top right
+    srcTri.push_back(Point2f( lines[lines.size()-1][2], lines[lines.size()-1][3] )); // bottom right
+    srcTri.push_back(Point2f( lines[lines.size()-1][0], lines[lines.size()-1][1] )); // top right
 
     dstTri.push_back(Point2f( lines[0][0], lines[0][1] ));
     dstTri.push_back(Point2f( lines[0][0], lines[0][1] +  verticalAdjust));
-    dstTri.push_back(Point2f( lines[lines.size()-1][0], lines[lines.size()-1][1] ));
-    dstTri.push_back(Point2f( lines[lines.size()-1][0], lines[lines.size()-1][1] + verticalAdjust ));
+    dstTri.push_back(Point2f( lines[lines.size()-1][2], lines[lines.size()-1][3] ));
+    dstTri.push_back(Point2f( lines[lines.size()-1][2], lines[lines.size()-1][3] + verticalAdjust ));
 
     warp_mat = findHomography( srcTri, dstTri, CV_RANSAC);
 
     Mat temp = getPerspectiveTransform(srcTri, dstTri);
 
     warpPerspective( frame, warp_dst, warp_mat, warp_dst.size() );
-    namedWindow("Warped", WINDOW_NORMAL);
-    imshow("Warped", warp_dst);
+    // namedWindow("Warped", WINDOW_NORMAL);
+    // imshow("Warped", warp_dst);
+
+    // Test transform with known output
     vector<Point2f> input = { Point2f(400, 123) }; 
     vector<Point2f> output;
     perspectiveTransform(input, output, temp);
 
-    return temp;
+    return warp_mat;
 }
