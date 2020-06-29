@@ -18,21 +18,28 @@ This project is aimed toward tracking players movements on a badminton court. It
 
 Requirements include OpenCV version 3.4 or greater as well as Cmake.
 
+1. [OpenCV Install](https://docs.opencv.org/trunk/d7/d9f/tutorial_linux_install.html)
+2. [CMake install](https://cmake.org/install/)
+
 Different videos can be used. Ensure that they are in .mp4 format and that the file name is changed accordingly - line 66.
 
 **Directory Structure**
 
-![Directory](media/tree.jpg)
+![Directory](/media/tree.png)
 
 **Expected Output**
 
 Right now functionality is limited. The players can be selected by the user and will be tracked over the length of the video. From there, several masks are applied to filter out the court and then to filter out the court lines and to determine the lines. A mapping is generated from the image frame to real world frame and then a simple position and velocity measuring system is implemented.
 
+![Court](/media/court.png)
+
+![Tracking](/media/tracker.png)
+
 **Rubric attempts**
 
 1. The project demonstrates an understanding of C++ functions and control structures.
    1. Code broken down into function and runs sequentially for the most part
-   2. See main.cpp
+   2. See `main.cpp`
 2. The project reads data from a file and process the data, or the program writes data to a file.
    1. Reads from an input
    2. See `main.cpp lines 169`
