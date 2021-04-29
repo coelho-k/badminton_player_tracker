@@ -35,6 +35,6 @@ Right now functionality is limited. The players can be selected by the user and 
 
 ![Tracking](/media/tracker.png)
 
-**Rubric attempts**
+**Updates**
 
 This is a work in progress...
