@@ -37,26 +37,4 @@ Right now functionality is limited. The players can be selected by the user and 
 
 **Rubric attempts**
 
-1. The project demonstrates an understanding of C++ functions and control structures.
-   1. Code broken down into function and runs sequentially for the most part
-   2. See `main.cpp`
-2. The project reads data from a file and process the data, or the program writes data to a file.
-   1. Reads from an input
-   2. See `main.cpp lines 169`
-3. The project accepts user input and processes the input.
-   1. Takes in a user defined video file path and tracker type
-      2.See `main.cpp lines 71 onwards`
-4. The project uses Object Oriented Programming techniques.
-   1. Code includes a body class
-   2. See `body.hpp`
-5. Classes use appropriate access specifiers for class members.
-   1. Private and public used for encapsulation
-   2. See `body.hpp`
-6. Classes abstract implementation details from their interfaces.
-   1. See `body.hpp` member functions and inline documentation
-7. Classes encapsulate behavior
-   1. See `body.hpp`
-8. The project makes use of references in function declarations
-   1. See any `bounds.cpp` functions
-
-Since this is a work in progress, more will be ticked off the list in time.
+This is a work in progress...
